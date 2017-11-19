@@ -4,14 +4,31 @@
            type="text"
            class="form-control"
            automation-id="title-control"
-           placeholder="Название">
+           placeholder="Название" required>
+    <div automation-id="title-error" class="invalid-feedback" *ngIf="form.get('title').invalid">{{getValidationErrorMessage('title')}}</div>
   </div>
   <div class="form-group">
     <input formControlName="price"
            type="text"
            class="form-control"
            automation-id="price-control"
-           placeholder="Стоимость">
+           placeholder="Стоимость" required>
+    <div automation-id="price-error" class="invalid-feedback">{{getValidationErrorMessage('price')}}</div>
+  </div>
+  <div class="form-group">
+    <input formControlName="date"
+           type="text"
+           class="form-control"
+           automation-id="date-control"
+           placeholder="Дата">
+  </div>
+  <div class="form-group">
+    <textarea formControlName="comment"
+              type="text"
+              class="form-control"
+              automation-id="comment-control"
+              placeholder="Комментарий">
+    </textarea>
   </div>
   <div class="form-group">
     <button type="submit"
