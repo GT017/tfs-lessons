@@ -4,7 +4,7 @@ import {WalletComponent} from './wallet.component';
 import {PurchasePreviewComponent} from './purchase-preview/purchase-preview.component';
 import {AddPurchaseModule} from './add-purchase/add-purchase.module';
 import {WalletHttpService} from './wallet-http.service';
-import {ReactiveFormsModule} from "@angular/forms";
+import {ReactiveFormsModule} from '@angular/forms';
 
 
 @NgModule({
