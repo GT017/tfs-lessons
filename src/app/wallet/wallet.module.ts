@@ -14,7 +14,7 @@ import {ReactiveFormsModule} from '@angular/forms';
     ReactiveFormsModule
   ],
   declarations: [WalletComponent, PurchasePreviewComponent],
-  exports: [WalletComponent],
+  exports: [WalletComponent, ReactiveFormsModule],
   providers: [
     WalletHttpService
   ]
