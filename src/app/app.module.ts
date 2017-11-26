@@ -6,6 +6,7 @@ import {AppComponent} from './app.component';
 import {WalletModule} from './wallet/wallet.module';
 import {WalletListModule} from './wallet-list/wallet-list.module';
 import {HttpClientModule} from '@angular/common/http';
+import {ReactiveFormsModule} from "@angular/forms";
 
 registerLocaleData(localeRu);
 

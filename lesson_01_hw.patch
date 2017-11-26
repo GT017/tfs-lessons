@@ -1,0 +1,231 @@
+Index: src/app/model/purchase.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/app/model/purchase.ts	(revision e3088d4d99a1007ff073e1f4230894665caf3d50)
++++ src/app/model/purchase.ts	(revision e20126c4c1f8dd9648f10a556f4617858d71c362)
+@@ -2,4 +2,5 @@
+   title: string;
+   price: number;
+   date: Date;
++  comment?: string;
+ }
+Index: src/app/wallet/add-purchase/add-purchase.component.css
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/app/wallet/add-purchase/add-purchase.component.css	(revision e3088d4d99a1007ff073e1f4230894665caf3d50)
++++ src/app/wallet/add-purchase/add-purchase.component.css	(revision e20126c4c1f8dd9648f10a556f4617858d71c362)
+@@ -2,4 +2,9 @@
+   border-color: #dc3545;
+ }
+ 
++.invalid-feedback {
++  display: block;
++  color: #dc3545;
++}
++
+ /* http://getbootstrap.com/docs/4.0/components/forms/#server-side подскажет, что делать*/
+Index: src/app/wallet/add-purchase/add-purchase.component.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/app/wallet/add-purchase/add-purchase.component.html	(revision e3088d4d99a1007ff073e1f4230894665caf3d50)
++++ src/app/wallet/add-purchase/add-purchase.component.html	(revision e20126c4c1f8dd9648f10a556f4617858d71c362)
+@@ -4,14 +4,31 @@
+            type="text"
+            class="form-control"
+            automation-id="title-control"
+-           placeholder="Название">
++           placeholder="Название" required>
++    <div automation-id="title-error" class="invalid-feedback" *ngIf="form.get('title').invalid">{{getValidationErrorMessage('title')}}</div>
+   </div>
+   <div class="form-group">
+     <input formControlName="price"
+            type="text"
+            class="form-control"
+            automation-id="price-control"
+-           placeholder="Стоимость">
++           placeholder="Стоимость" required>
++    <div automation-id="price-error" class="invalid-feedback">{{getValidationErrorMessage('price')}}</div>
++  </div>
++  <div class="form-group">
++    <input formControlName="date"
++           type="text"
++           class="form-control"
++           automation-id="date-control"
++           placeholder="Дата">
++  </div>
++  <div class="form-group">
++    <textarea formControlName="comment"
++              type="text"
++              class="form-control"
++              automation-id="comment-control"
++              placeholder="Комментарий">
++    </textarea>
+   </div>
+   <div class="form-group">
+     <button type="submit"
+Index: src/app/wallet/add-purchase/add-purchase.component.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/app/wallet/add-purchase/add-purchase.component.ts	(revision e3088d4d99a1007ff073e1f4230894665caf3d50)
++++ src/app/wallet/add-purchase/add-purchase.component.ts	(revision e20126c4c1f8dd9648f10a556f4617858d71c362)
+@@ -9,6 +9,19 @@
+ })
+ export class AddPurchaseComponent implements OnInit {
+   form: FormGroup;
++  validationErrorMessages = {
++    title: {
++      required: 'поле обязательно для заполнения',
++      minlength: 'минимальная длина — 3',
++      maxlength: 'максимальная длина — 80'
++    },
++    price: {
++      required: 'поле обязательно для заполнения',
++      pattern: 'разрешены лишь цифры',
++      min: 'минимальное значение 10',
++      max: 'максимальное значение 1000000'
++    }
++  };
+   @Output() addPurchase = new EventEmitter<Purchase>();
+ 
+   constructor(private formBuilder: FormBuilder) {
+@@ -16,24 +29,44 @@
+ 
+   ngOnInit() {
+     this.form = this.formBuilder.group({
+-      title: ['', [Validators.required]],
+-      price: [''],
++      title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80)]],
++      price: ['', [Validators.required, Validators.pattern('[0-9]*[.,]?[0-9]+'), Validators.min(10), Validators.max(1000000)]],
++      date: [''],
++      comment: ['']
+     });
+   }
+ 
+   onSubmit() {
+     const price = parseFloat(this.form.value.price);
+ 
+-    if (isNaN(price)) {
++    if (this.form.invalid) {
+       return;
+     }
+ 
+     const purchase: Purchase = {
+       title: this.form.value.title,
+-      price: price,
+-      date: new Date()
++      price: Math.floor(price * 100) / 100,
++      date: this.form.value.date ? new Date(this.form.value.date) : new Date(),
+     };
++
++    if (this.form.value.comment) {
++      purchase.comment = this.form.value.comment;
++    }
+ 
+     this.addPurchase.emit(purchase);
+   }
++
++  getValidationErrorMessage(field) {
++    const validationErrors = this.form.get(field).errors;
++    const messages = this.validationErrorMessages[field];
++    let message = '';
++
++    for (let key in validationErrors) {
++      if (validationErrors.hasOwnProperty(key)) {
++        message += messages[key] + ' ';
++      }
++    }
++
++    return message;
++  }
+ }
+Index: src/app/wallet/purchase-preview/purchase-preview.component.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/app/wallet/purchase-preview/purchase-preview.component.html	(revision e3088d4d99a1007ff073e1f4230894665caf3d50)
++++ src/app/wallet/purchase-preview/purchase-preview.component.html	(revision e20126c4c1f8dd9648f10a556f4617858d71c362)
+@@ -1,12 +1,16 @@
+-<div class="d-flex justify-content-between align-items-center preview-title">
++<div automation-id="header" class="d-flex justify-content-between align-items-center preview-title" (click)="onClick()">
+   {{purchase.title}}
+-  <span class="badge badge-secondary">{{purchase.price | currency:'RUB':''}}</span>
++  <span automation-id="price" class="badge badge-secondary">{{purchase.price | currency:'RUB':''}}</span>
+ </div>
+-<div class="preview-body" *ngIf="isOpen">
++<div automation-id="preview-body" class="preview-body" *ngIf="isOpen">
+   <table class="details">
+     <tr>
+       <th>Дата:</th>
+-      <td>{{purchase.date | date:'longDate'}}</td>
++      <td automation-id="date">{{purchase.date | date:'longDate'}}</td>
++    </tr>
++    <tr *ngIf="purchase.comment">
++      <th>Комментарий:</th>
++      <td automation-id="comment">{{purchase.comment}}</td>
+     </tr>
+   </table>
+ </div>
+Index: src/app/wallet/wallet.component.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/app/wallet/wallet.component.html	(revision e3088d4d99a1007ff073e1f4230894665caf3d50)
++++ src/app/wallet/wallet.component.html	(revision e20126c4c1f8dd9648f10a556f4617858d71c362)
+@@ -11,7 +11,7 @@
+               [class.btn-primary]="!isAddPurchaseOpen"
+               [class.btn-danger]="isAddPurchaseOpen"
+               (click)="toggleAdd()">
+-        Добавить
++        {{button}}
+       </button>
+     </div>
+   </div>
+Index: src/app/wallet/wallet.component.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/app/wallet/wallet.component.ts	(revision e3088d4d99a1007ff073e1f4230894665caf3d50)
++++ src/app/wallet/wallet.component.ts	(revision e20126c4c1f8dd9648f10a556f4617858d71c362)
+@@ -10,16 +10,22 @@
+   purchases: Purchase[] = [];
+   total = 0;
+   isAddPurchaseOpen = false;
++  button: string;
++  buttonStatus = {
++    add: 'Добавить',
++    cancel: 'Отменить'
++  };
+ 
+   private currentOpen: number;
+ 
+   constructor() {
+-    this.toggleAdd();
++    //this.toggleAdd();
+   }
+ 
+   ngOnInit() {
+     // this.purchases = this.getData();
+     // this.total = this.getTotal();
++    this.button = this.buttonStatus.add;
+     this.addPurchases(this.getData());
+   }
+ 
+@@ -32,6 +38,7 @@
+ 
+   toggleAdd() {
+     this.isAddPurchaseOpen = !this.isAddPurchaseOpen;
++    this.button = this.isAddPurchaseOpen ? this.buttonStatus.cancel : this.buttonStatus.add;
+   }
+ 
+   onPreviewClick(index: number) {

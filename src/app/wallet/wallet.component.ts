@@ -61,7 +61,8 @@ export class WalletComponent implements OnInit {
       });
   }
 
-  onPurchaseEdit() {
+  onPurchaseEdit(purchase: Purchase) {
+    this.walletHttpService.updatePurchase(purchase).subscribe(() => this.loadPurchases());
   }
 
   isCurrentOpen(index: number): boolean {

@@ -24,7 +24,8 @@
                             [purchase]="purchase"
                             [isOpen]="isCurrentOpen(i)"
                             (previewClick)="onPreviewClick(i)"
-                            (previewDelete)="onPreviewDelete(purchase)"></tfs-purchase-preview>
+                            (previewDelete)="onPreviewDelete(purchase)"
+                            (edit)="onPurchaseEdit($event)"></tfs-purchase-preview>
     </li>
   </ul>
   <div class="card-footer text-center"
